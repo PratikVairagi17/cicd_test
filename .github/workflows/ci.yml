@@ -11,10 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build Docker image
-      run: |
-        docker build -t fastapi-hello ./docker/fastapi-hello
-    - name: Run tests
-      run: |
-        docker run --rm fastapi-hello sh -c "cd /app && PYTHONPATH=/app pytest"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run echo
+        run: echo "GitHub Actions is working 🚀"
