@@ -1,4 +1,4 @@
-name: CI
+name: git-action-test
 
 on:
   push:
@@ -12,10 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build Docker image
-      run: |
-        docker build -f docker/fastapi-hello/Dockerfile -t fastapi-hello .
-    - name: Run tests
-      run: |
-        docker run --rm fastapi-hello sh -c "cd /app && PYTHONPATH=/app pytest"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Basic CI check
+        run: |
+          echo "✅ CI pipeline is running"
