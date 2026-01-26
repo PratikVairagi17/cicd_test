@@ -16,20 +16,26 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-
             echo "🚀 Starting deployment"
 
-            sudo apt update -y
-            sudo apt install -y git
+            APP_DIR="/home/ubuntu/cicd_test"
+            REPO_URL="https://github.com/PratikVairagi17/cicd_test.git"
 
-            cd /home/ubuntu/
+            if [ ! -d "$APP_DIR/.git" ]; then
+              echo "📦 Repo not found. Cloning..."
+              cd /home/ubuntu
+              git clone $REPO_URL
+            else
+              echo "🔄 Repo exists. Pulling latest changes..."
+              cd $APP_DIR
+              git pull origin main
+            fi
 
-            cd /home/ubuntu/cicd_test
-            git pull origin main
+            cd $APP_DIR
 
             sudo docker compose down
             sudo docker compose up -d --build
