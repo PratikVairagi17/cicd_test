@@ -26,7 +26,7 @@ jobs:
             sudo apt update -y
             sudo apt install -y git
 
-            cd /home/ubuntu/app
+            cd /home/ubuntu/
 
             git pull origin main
 
