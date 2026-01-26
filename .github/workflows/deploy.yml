@@ -28,7 +28,8 @@ jobs:
 
             cd /home/ubuntu/
 
-            git pull origin main
+            git pull https://github.com/PratikVairagi17/cicd_test.git cicd_file
+            cd cicd_file
 
             sudo docker compose down
             sudo docker compose up -d --build
