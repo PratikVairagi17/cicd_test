@@ -12,7 +12,7 @@ env:
   ECS_CLUSTER: cicd-cluster
   ECS_SERVICE: cicd-service
   ECS_TASK_DEFINITION: fastapi-hello-task
-  CONTAINER_NAME: fastapi-hello   # ✅ MUST MATCH ECS
+  CONTAINER_NAME: fastapi   # ✅ MUST MATCH ECS
 
 jobs:
   deploy:
