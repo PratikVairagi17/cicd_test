@@ -11,6 +11,7 @@ env:
   ECR_REPOSITORY: cicd-test
   ECS_CLUSTER: cicd-cluster
   ECS_SERVICE: cicd-service
+  ECS_TASK_DEFINITION: fastapi-hello-task
   CONTAINER_NAME: cicd-container
 
 jobs:
@@ -53,9 +54,9 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-            --task-definition $ECS_SERVICE \
-            --query taskDefinition \
-            > task-definition.json
+           --task-definition $ECS_TASK_DEFINITION \
+          --query taskDefinition \
+           > task-definition.json
 
       # STEP 6: Replace container image
       - name: Render new task definition
