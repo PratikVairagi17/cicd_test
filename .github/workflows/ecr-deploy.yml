@@ -10,7 +10,8 @@ env:
   AWS_REGION: ap-south-1
   ECR_REPOSITORY: cicd-test
   ECS_CLUSTER: cicd-cluster
-  ECS_SERVICE: cicd-service
+  ECS_SERVICE: cicd-service         # ECS Service
+  ECS_TASK_DEFINITION: cicd-task 
   CONTAINER_NAME: cicd-container
 
 jobs:
