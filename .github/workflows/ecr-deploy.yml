@@ -9,7 +9,7 @@ on:
 env:
   AWS_REGION: ap-south-1
   ECR_REPOSITORY: cicd-test
-  ECS_CLUSTER: cicd-cluster
+  ECS_CLUSTER: cicd-service
   ECS_SERVICE: cicd-service
   ECS_TASK_DEFINITION: fastapi-hello-task
   CONTAINER_NAME: fastapi   # ✅ MUST MATCH ECS
