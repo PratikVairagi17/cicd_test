@@ -12,18 +12,18 @@ env:
   ECS_CLUSTER: cicd-cluster
   ECS_SERVICE: cicd-service
   ECS_TASK_DEFINITION: fastapi-hello-task
-  CONTAINER_NAME: cicd-container
+  CONTAINER_NAME: fastapi-hello   # ✅ MUST MATCH ECS
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # STEP 1: Checkout source code
+      # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # STEP 2: Configure AWS credentials
+      # 2. Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -31,12 +31,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # STEP 3: Login to Amazon ECR
+      # 3. Login to ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # STEP 4: Build & Push Docker image
+      # 4. Build & push Docker image
       - name: Build and push Docker image
         id: build-image
         env:
@@ -46,19 +46,19 @@ jobs:
           docker build \
             -f docker/fastapi-hello/Dockerfile \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-             .
+            .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      # STEP 5: Fetch existing ECS task definition
+      # 5. Download task definition
       - name: Download task definition
         run: |
           aws ecs describe-task-definition \
-           --task-definition $ECS_TASK_DEFINITION \
-          --query taskDefinition \
-           > task-definition.json
+            --task-definition $ECS_TASK_DEFINITION \
+            --query taskDefinition \
+            > task-definition.json
 
-      # STEP 6: Replace container image
+      # 6. Inject new image
       - name: Render new task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -67,11 +67,16 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
-      # STEP 7: Deploy to ECS Fargate
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+      # 7. Register new task definition (CLI – SAFE)
+      - name: Register task definition
+        run: |
+          aws ecs register-task-definition \
+            --cli-input-json file://${{ steps.task-def.outputs.task-definition }}
+
+      # 8. Update ECS service
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --task-definition $ECS_TASK_DEFINITION
